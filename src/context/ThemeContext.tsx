@@ -14,6 +14,7 @@ import type {
   TextDirection,
   EditorWidth,
 } from "../types/note";
+import { resolveSyntaxTheme } from "../lib/shiki";
 
 type ThemeMode = "light" | "dark" | "system";
 
@@ -60,6 +61,9 @@ interface ThemeContextType {
   setEditorWidth: (width: EditorWidth) => void;
   interfaceZoom: number;
   setInterfaceZoom: (zoomOrUpdater: number | ((prev: number) => number)) => void;
+  syntaxTheme: string;
+  setSyntaxTheme: (theme: string) => void;
+  resolvedSyntaxTheme: string;
 }
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
@@ -117,6 +121,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [textDirection, setTextDirectionState] = useState<TextDirection>("ltr");
   const [editorWidth, setEditorWidthState] = useState<EditorWidth>("normal");
   const [interfaceZoom, setInterfaceZoomState] = useState(1.0);
+  const [syntaxTheme, setSyntaxThemeState] = useState("auto");
   const [isInitialized, setIsInitialized] = useState(false);
 
   const [systemTheme, setSystemTheme] = useState<"light" | "dark">(() => {
@@ -163,6 +168,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       ) {
         setInterfaceZoomState(settings.interfaceZoom);
       }
+      if (typeof settings.syntaxTheme === "string" && settings.syntaxTheme) {
+        setSyntaxThemeState(settings.syntaxTheme);
+      }
     } catch {
       // If settings can't be loaded, use defaults
     }
@@ -192,6 +200,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   // Resolve the actual theme to use
   const resolvedTheme = theme === "system" ? systemTheme : theme;
+
+  // Resolve the effective Shiki syntax theme
+  const resolvedSyntaxTheme = resolveSyntaxTheme(syntaxTheme, resolvedTheme === "dark");
 
   // Apply theme to document (just toggle dark class)
   useEffect(() => {
@@ -328,6 +339,17 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     }
   }, []);
 
+  // Save and set syntax theme
+  const setSyntaxTheme = useCallback(async (newSyntaxTheme: string) => {
+    setSyntaxThemeState(newSyntaxTheme);
+    try {
+      const settings = await getSettings();
+      await updateSettings({ ...settings, syntaxTheme: newSyntaxTheme });
+    } catch (error) {
+      console.error("Failed to save syntax theme:", error);
+    }
+  }, []);
+
   // Save and set interface zoom (accepts absolute value or updater function)
   const setInterfaceZoom = useCallback(
     (zoomOrUpdater: number | ((prev: number) => number)) => {
@@ -376,6 +398,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         setEditorWidth,
         interfaceZoom,
         setInterfaceZoom,
+        syntaxTheme,
+        setSyntaxTheme,
+        resolvedSyntaxTheme,
       }}
     >
       {children}

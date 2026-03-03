@@ -419,7 +419,7 @@ export function Editor({
   const pinNote = notesCtx?.pinNote;
   const unpinNote = notesCtx?.unpinNote;
   const notes = notesCtx?.notes;
-  const { textDirection, resolvedTheme } = useTheme();
+  const { textDirection, resolvedSyntaxTheme } = useTheme();
   const [isSaving, setIsSaving] = useState(false);
   // Force re-render when selection changes to update toolbar active states
   const [, setSelectionKey] = useState(0);
@@ -458,9 +458,9 @@ export function Editor({
   notesRef.current = notes;
   const notesCtxRef = useRef(notesCtx);
   notesCtxRef.current = notesCtx;
-  // Stable ref for resolvedTheme so the Shiki init effect reads the current value
-  const resolvedThemeRef = useRef(resolvedTheme);
-  resolvedThemeRef.current = resolvedTheme;
+  // Stable ref for resolvedSyntaxTheme so the Shiki init effect reads the current value
+  const resolvedThemeRef = useRef(resolvedSyntaxTheme);
+  resolvedThemeRef.current = resolvedSyntaxTheme;
 
   // Keep ref in sync with current note ID
   currentNoteIdRef.current = currentNote?.id ?? null;
@@ -832,20 +832,20 @@ export function Editor({
     initHighlighter();
     editor.view.dispatch(
       editor.state.tr.setMeta(codeBlockShikiPluginKey, {
-        isDark: resolvedThemeRef.current === "dark",
+        syntaxTheme: resolvedThemeRef.current,
       }),
     );
   }, [editor]);
 
-  // Re-highlight when theme switches
+  // Re-highlight when syntax theme changes
   useEffect(() => {
     if (!editor) return;
     editor.view.dispatch(
       editor.state.tr.setMeta(codeBlockShikiPluginKey, {
-        isDark: resolvedTheme === "dark",
+        syntaxTheme: resolvedSyntaxTheme,
       }),
     );
-  }, [resolvedTheme, editor]);
+  }, [resolvedSyntaxTheme, editor]);
 
   // Search navigation functions (defined after editor is created)
   const goToNextMatch = useCallback(() => {

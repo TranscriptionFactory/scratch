@@ -2,6 +2,7 @@ import { useTheme } from "../../context/ThemeContext";
 import { Button, IconButton, Input, Select } from "../ui";
 import type { FontFamily, TextDirection, EditorWidth } from "../../types/note";
 import { EyeIcon, MinusIcon, PlusIcon } from "../icons";
+import { SYNTAX_THEMES } from "../../lib/shiki";
 
 // Text direction options
 const textDirectionOptions: { value: TextDirection; label: string }[] = [
@@ -46,6 +47,8 @@ export function AppearanceSettingsSection() {
     setEditorWidth,
     interfaceZoom,
     setInterfaceZoom,
+    syntaxTheme,
+    setSyntaxTheme,
   } = useTheme();
 
   // Validated numeric change handler
@@ -109,6 +112,20 @@ export function AppearanceSettingsSection() {
             Currently using {resolvedTheme} mode based on system preference
           </p>
         )}
+        <div className="flex items-center justify-between mt-3">
+          <label className="text-sm text-text font-medium">Syntax Highlighting</label>
+          <Select
+            value={syntaxTheme}
+            onChange={(e) => setSyntaxTheme(e.target.value)}
+            className="w-40"
+          >
+            {SYNTAX_THEMES.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </Select>
+        </div>
       </section>
 
       {/* Divider */}

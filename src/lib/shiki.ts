@@ -13,9 +13,46 @@ import rustGrammar from "shiki/dist/langs/rust.mjs";
 import tsxGrammar from "shiki/dist/langs/tsx.mjs";
 import tsGrammar from "shiki/dist/langs/typescript.mjs";
 
-// Theme imports — static so Vite bundles only these 2 themes
+// Theme imports — static so Vite bundles only these themes
 import githubLight from "shiki/dist/themes/github-light.mjs";
 import githubDark from "shiki/dist/themes/github-dark.mjs";
+import dracula from "shiki/dist/themes/dracula.mjs";
+import minLight from "shiki/dist/themes/min-light.mjs";
+import minDark from "shiki/dist/themes/min-dark.mjs";
+import monokai from "shiki/dist/themes/monokai.mjs";
+import nord from "shiki/dist/themes/nord.mjs";
+import oneDarkPro from "shiki/dist/themes/one-dark-pro.mjs";
+import solarizedLight from "shiki/dist/themes/solarized-light.mjs";
+import tokyoNight from "shiki/dist/themes/tokyo-night.mjs";
+
+/** Available syntax highlight themes (value = Shiki theme id, or "auto"). */
+export const SYNTAX_THEMES: { value: string; label: string }[] = [
+  { value: "auto", label: "Auto" },
+  { value: "github-light", label: "GitHub Light" },
+  { value: "github-dark", label: "GitHub Dark" },
+  { value: "min-light", label: "Min Light" },
+  { value: "min-dark", label: "Min Dark" },
+  { value: "solarized-light", label: "Solarized Light" },
+  { value: "dracula", label: "Dracula" },
+  { value: "monokai", label: "Monokai" },
+  { value: "nord", label: "Nord" },
+  { value: "one-dark-pro", label: "One Dark Pro" },
+  { value: "tokyo-night", label: "Tokyo Night" },
+];
+
+/**
+ * Resolves the effective Shiki theme name from the user's syntax theme setting.
+ * "auto" (or undefined) follows the app theme; any other value is used directly.
+ */
+export function resolveSyntaxTheme(
+  syntaxTheme: string | undefined,
+  isDark: boolean,
+): string {
+  if (!syntaxTheme || syntaxTheme === "auto") {
+    return isDark ? "github-dark" : "github-light";
+  }
+  return syntaxTheme;
+}
 
 // Language aliases (e.g. ```js -> javascript)
 const LANG_ALIASES: Record<string, string> = {
@@ -54,7 +91,18 @@ function getHighlighter(): HighlighterCore {
   if (!_highlighter) {
     _highlighter = createHighlighterCoreSync({
       engine: createJavaScriptRegexEngine(),
-      themes: [githubLight, githubDark],
+      themes: [
+        githubLight,
+        githubDark,
+        dracula,
+        minLight,
+        minDark,
+        monokai,
+        nord,
+        oneDarkPro,
+        solarizedLight,
+        tokyoNight,
+      ],
       langs: [
         bashGrammar,
         cssGrammar,

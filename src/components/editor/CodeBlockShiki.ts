@@ -11,17 +11,16 @@ export const codeBlockShikiPluginKey = new PluginKey<PluginState>(
 
 interface PluginState {
   decorations: DecorationSet;
-  isDark: boolean;
+  syntaxTheme: string;
 }
 
 /** Build ProseMirror inline decorations from Shiki token colors. */
 function buildDecorations(
   doc: ProseMirrorNode,
   highlighter: HighlighterCore,
-  isDark: boolean,
+  syntaxTheme: string,
 ): DecorationSet {
   const decorations: Decoration[] = [];
-  const theme = isDark ? "github-dark" : "github-light";
 
   doc.descendants((node, pos) => {
     if (node.type.name !== "codeBlock") return;
@@ -35,7 +34,7 @@ function buildDecorations(
     try {
       const { tokens } = highlighter.codeToTokens(code, {
         lang: lang ?? "text",
-        theme,
+        theme: syntaxTheme,
       });
 
       // +1 to skip the codeBlock node's opening token in the document
@@ -92,12 +91,13 @@ export const CodeBlockShiki = Extension.create({
         state: {
           init(_, { doc }): PluginState {
             const highlighter = getHighlighterSync();
+            const defaultTheme = "github-light";
             if (!highlighter) {
-              return { decorations: DecorationSet.empty, isDark: false };
+              return { decorations: DecorationSet.empty, syntaxTheme: defaultTheme };
             }
             return {
-              isDark: false,
-              decorations: buildDecorations(doc, highlighter, false),
+              syntaxTheme: defaultTheme,
+              decorations: buildDecorations(doc, highlighter, defaultTheme),
             };
           },
 
@@ -105,26 +105,27 @@ export const CodeBlockShiki = Extension.create({
             const meta = tr.getMeta(
               codeBlockShikiPluginKey,
             ) as Partial<PluginState> | undefined;
-            const isDark = meta?.isDark ?? prevState.isDark;
+            const syntaxTheme = meta?.syntaxTheme ?? prevState.syntaxTheme;
             const themeChanged =
-              meta?.isDark !== undefined && meta.isDark !== prevState.isDark;
+              meta?.syntaxTheme !== undefined &&
+              meta.syntaxTheme !== prevState.syntaxTheme;
 
             // Nothing relevant changed — just remap positions
             if (!tr.docChanged && !themeChanged) {
-              return { isDark, decorations: prevState.decorations.map(tr.mapping, tr.doc) };
+              return { syntaxTheme, decorations: prevState.decorations.map(tr.mapping, tr.doc) };
             }
 
             const highlighter = getHighlighterSync();
             if (!highlighter) {
               return {
-                isDark,
+                syntaxTheme,
                 decorations: prevState.decorations.map(tr.mapping, tr.doc),
               };
             }
 
             return {
-              isDark,
-              decorations: buildDecorations(tr.doc, highlighter, isDark),
+              syntaxTheme,
+              decorations: buildDecorations(tr.doc, highlighter, syntaxTheme),
             };
           },
         },

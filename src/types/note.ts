@@ -38,4 +38,5 @@ export interface Settings {
   editorWidth?: EditorWidth;
   defaultNoteName?: string;
   interfaceZoom?: number;
+  syntaxTheme?: string; // "auto" | shiki theme name, default "auto"
 }
