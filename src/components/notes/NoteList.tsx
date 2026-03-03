@@ -90,13 +90,19 @@ const NoteItem = memo(function NoteItem({
   );
 
   const folder = id.includes('/') ? id.substring(0, id.lastIndexOf('/')) : null;
+  const filename = id.includes('/') ? id.substring(id.lastIndexOf('/') + 1) : id;
+  const contentTitle = cleanTitle(title);
+  const subtitleParts = [
+    contentTitle !== 'Untitled' ? contentTitle : undefined,
+    preview,
+  ].filter(Boolean);
   const displayPreview = folder
-    ? preview ? `${folder}/ · ${preview}` : `${folder}/`
-    : preview;
+    ? `${folder}/ · ${subtitleParts.join(' · ')}`
+    : subtitleParts.join(' · ') || undefined;
 
   return (
     <ListItem
-      title={cleanTitle(title)}
+      title={filename}
       subtitle={displayPreview}
       meta={formatDate(modified)}
       isSelected={isSelected}
