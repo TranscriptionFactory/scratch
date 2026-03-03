@@ -25,8 +25,22 @@ import oneDarkPro from "shiki/dist/themes/one-dark-pro.mjs";
 import solarizedLight from "shiki/dist/themes/solarized-light.mjs";
 import tokyoNight from "shiki/dist/themes/tokyo-night.mjs";
 
+/** Union of valid syntax theme identifiers. */
+export type SyntaxTheme =
+  | "auto"
+  | "github-light"
+  | "github-dark"
+  | "min-light"
+  | "min-dark"
+  | "solarized-light"
+  | "dracula"
+  | "monokai"
+  | "nord"
+  | "one-dark-pro"
+  | "tokyo-night";
+
 /** Available syntax highlight themes (value = Shiki theme id, or "auto"). */
-export const SYNTAX_THEMES: { value: string; label: string }[] = [
+export const SYNTAX_THEMES: { value: SyntaxTheme; label: string }[] = [
   { value: "auto", label: "Auto" },
   { value: "github-light", label: "GitHub Light" },
   { value: "github-dark", label: "GitHub Dark" },
@@ -40,12 +54,17 @@ export const SYNTAX_THEMES: { value: string; label: string }[] = [
   { value: "tokyo-night", label: "Tokyo Night" },
 ];
 
+/** Set of valid SyntaxTheme values for runtime validation. */
+export const SYNTAX_THEME_VALUES: ReadonlySet<SyntaxTheme> = new Set(
+  SYNTAX_THEMES.map((t) => t.value),
+);
+
 /**
  * Resolves the effective Shiki theme name from the user's syntax theme setting.
  * "auto" (or undefined) follows the app theme; any other value is used directly.
  */
 export function resolveSyntaxTheme(
-  syntaxTheme: string | undefined,
+  syntaxTheme: SyntaxTheme | undefined,
   isDark: boolean,
 ): string {
   if (!syntaxTheme || syntaxTheme === "auto") {

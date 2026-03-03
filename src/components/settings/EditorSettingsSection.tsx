@@ -4,7 +4,7 @@ import { useTheme } from "../../context/ThemeContext";
 import { Button, IconButton, Input, Select } from "../ui";
 import type { FontFamily, TextDirection, EditorWidth } from "../../types/note";
 import { EyeIcon, MinusIcon, PlusIcon } from "../icons";
-import { SYNTAX_THEMES, getHighlighterSync, initHighlighter } from "../../lib/shiki";
+import { SYNTAX_THEMES, getHighlighterSync, initHighlighter, type SyntaxTheme } from "../../lib/shiki";
 
 // Text direction options
 const textDirectionOptions: { value: TextDirection; label: string }[] = [
@@ -190,7 +190,7 @@ export function AppearanceSettingsSection() {
           </label>
           <Select
             value={syntaxTheme}
-            onChange={(e) => setSyntaxTheme(e.target.value)}
+            onChange={(e) => setSyntaxTheme(e.target.value as SyntaxTheme)}
             className="w-40"
           >
             {SYNTAX_THEMES.map((opt) => (

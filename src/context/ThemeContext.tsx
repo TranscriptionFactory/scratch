@@ -14,9 +14,16 @@ import type {
   TextDirection,
   EditorWidth,
 } from "../types/note";
-import { resolveSyntaxTheme } from "../lib/shiki";
+import { resolveSyntaxTheme, type SyntaxTheme, SYNTAX_THEME_VALUES } from "../lib/shiki";
 
 type ThemeMode = "light" | "dark" | "system";
+
+function validateSyntaxTheme(value: unknown): SyntaxTheme {
+  if (typeof value === "string" && SYNTAX_THEME_VALUES.has(value as SyntaxTheme)) {
+    return value as SyntaxTheme;
+  }
+  return "auto";
+}
 
 // Font family CSS values
 const fontFamilyMap: Record<FontFamily, string> = {
@@ -61,8 +68,8 @@ interface ThemeContextType {
   setEditorWidth: (width: EditorWidth) => void;
   interfaceZoom: number;
   setInterfaceZoom: (zoomOrUpdater: number | ((prev: number) => number)) => void;
-  syntaxTheme: string;
-  setSyntaxTheme: (theme: string) => void;
+  syntaxTheme: SyntaxTheme;
+  setSyntaxTheme: (theme: SyntaxTheme) => void;
   resolvedSyntaxTheme: string;
 }
 
@@ -121,7 +128,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [textDirection, setTextDirectionState] = useState<TextDirection>("ltr");
   const [editorWidth, setEditorWidthState] = useState<EditorWidth>("normal");
   const [interfaceZoom, setInterfaceZoomState] = useState(1.0);
-  const [syntaxTheme, setSyntaxThemeState] = useState("auto");
+  const [syntaxTheme, setSyntaxThemeState] = useState<SyntaxTheme>("auto");
   const [isInitialized, setIsInitialized] = useState(false);
 
   const [systemTheme, setSystemTheme] = useState<"light" | "dark">(() => {
@@ -168,8 +175,8 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       ) {
         setInterfaceZoomState(settings.interfaceZoom);
       }
-      if (typeof settings.syntaxTheme === "string" && settings.syntaxTheme) {
-        setSyntaxThemeState(settings.syntaxTheme);
+      if (settings.syntaxTheme != null) {
+        setSyntaxThemeState(validateSyntaxTheme(settings.syntaxTheme));
       }
     } catch {
       // If settings can't be loaded, use defaults
@@ -340,7 +347,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   }, []);
 
   // Save and set syntax theme
-  const setSyntaxTheme = useCallback(async (newSyntaxTheme: string) => {
+  const setSyntaxTheme = useCallback(async (newSyntaxTheme: SyntaxTheme) => {
     setSyntaxThemeState(newSyntaxTheme);
     try {
       const settings = await getSettings();
