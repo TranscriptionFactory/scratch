@@ -14,7 +14,7 @@ import {
   AlertDialogTitle,
 } from "../ui";
 import { ChevronRightIcon, ChevronDownIcon, FolderIcon } from "../icons";
-import { cleanTitle } from "../../lib/utils";
+import { cn, cleanTitle } from "../../lib/utils";
 import * as notesService from "../../services/notes";
 import type { NoteMetadata, Settings } from "../../types/note";
 
@@ -152,7 +152,7 @@ const FolderRow = memo(function FolderRow({ path, name, isCollapsed, onToggle }:
   return (
     <button
       onClick={handleClick}
-      className="w-full flex items-center gap-1.5 px-2 py-1 text-text-muted hover:text-text hover:bg-bg-muted rounded-md transition-colors cursor-pointer select-none text-left"
+      className={cn("w-full flex items-center gap-1.5 px-2 py-1 text-text-muted hover:text-text hover:bg-bg-muted rounded-md transition-colors cursor-pointer select-none text-left")}
     >
       {isCollapsed
         ? <ChevronRightIcon className="w-3.5 h-3.5 shrink-0" />
@@ -204,7 +204,7 @@ const NoteItem = memo(function NoteItem({
     preview,
   ].filter(Boolean);
   const displayPreview = (!inTree && folder)
-    ? `${folder}/ · ${subtitleParts.join(" · ")}`
+    ? (subtitleParts.length ? `${folder}/ · ${subtitleParts.join(" · ")}` : `${folder}/`)
     : subtitleParts.join(" · ") || undefined;
 
   return (

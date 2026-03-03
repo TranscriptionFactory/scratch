@@ -15,6 +15,7 @@ import type {
   EditorWidth,
 } from "../types/note";
 import { resolveSyntaxTheme, type SyntaxTheme, SYNTAX_THEME_VALUES } from "../lib/shiki";
+import { toast } from "sonner";
 
 type ThemeMode = "light" | "dark" | "system";
 
@@ -348,14 +349,17 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   // Save and set syntax theme
   const setSyntaxTheme = useCallback(async (newSyntaxTheme: SyntaxTheme) => {
+    const previousTheme = syntaxTheme;
     setSyntaxThemeState(newSyntaxTheme);
     try {
       const settings = await getSettings();
       await updateSettings({ ...settings, syntaxTheme: newSyntaxTheme });
     } catch (error) {
+      setSyntaxThemeState(previousTheme);
+      toast.error("Could not save syntax theme; your change was not persisted");
       console.error("Failed to save syntax theme:", error);
     }
-  }, []);
+  }, [syntaxTheme]);
 
   // Save and set interface zoom (accepts absolute value or updater function)
   const setInterfaceZoom = useCallback(

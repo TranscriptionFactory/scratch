@@ -458,9 +458,6 @@ export function Editor({
   notesRef.current = notes;
   const notesCtxRef = useRef(notesCtx);
   notesCtxRef.current = notesCtx;
-  // Stable ref for resolvedSyntaxTheme so the Shiki init effect reads the current value
-  const resolvedThemeRef = useRef(resolvedSyntaxTheme);
-  resolvedThemeRef.current = resolvedSyntaxTheme;
 
   // Keep ref in sync with current note ID
   currentNoteIdRef.current = currentNote?.id ?? null;
@@ -826,18 +823,13 @@ export function Editor({
     if (storage) storage.notes = notes;
   }, [editor, notes]);
 
-  // Initialize Shiki and apply initial syntax highlighting when ready
+  // Initialize Shiki when the editor is ready
   useEffect(() => {
     if (!editor) return;
     initHighlighter();
-    editor.view.dispatch(
-      editor.state.tr.setMeta(codeBlockShikiPluginKey, {
-        syntaxTheme: resolvedThemeRef.current,
-      }),
-    );
   }, [editor]);
 
-  // Re-highlight when syntax theme changes
+  // Apply syntax theme (handles both initial highlight and theme changes)
   useEffect(() => {
     if (!editor) return;
     editor.view.dispatch(

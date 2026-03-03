@@ -143,8 +143,12 @@ let _ready = false;
 
 export function initHighlighter(): void {
   if (!_ready) {
-    _ready = true;
-    getHighlighter(); // synchronous — runs immediately
+    try {
+      getHighlighter(); // synchronous — runs immediately
+      _ready = true;
+    } catch (error) {
+      console.error("Failed to initialize Shiki highlighter:", error);
+    }
   }
 }
 
