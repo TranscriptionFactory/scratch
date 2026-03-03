@@ -76,7 +76,6 @@ interface NoteItemProps {
 const NoteItem = memo(function NoteItem({
   id,
   title,
-  preview,
   modified,
   isSelected,
   isPinned,
@@ -90,13 +89,17 @@ const NoteItem = memo(function NoteItem({
   );
 
   const folder = id.includes('/') ? id.substring(0, id.lastIndexOf('/')) : null;
+  const filename = id.includes('/') ? id.substring(id.lastIndexOf('/') + 1) : id;
+  const rawContentTitle = cleanTitle(title);
+  // Only show content title if it's a real title (not the "Untitled" fallback)
+  const contentTitle = rawContentTitle !== "Untitled" ? rawContentTitle : null;
   const displayPreview = folder
-    ? preview ? `${folder}/ · ${preview}` : `${folder}/`
-    : preview;
+    ? contentTitle ? `${folder}/ · ${contentTitle}` : `${folder}/`
+    : contentTitle ?? undefined;
 
   return (
     <ListItem
-      title={cleanTitle(title)}
+      title={filename}
       subtitle={displayPreview}
       meta={formatDate(modified)}
       isSelected={isSelected}
